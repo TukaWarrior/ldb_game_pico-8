@@ -2,42 +2,68 @@ pico-8 cartridge // http://www.pico-8.com
 version 43
 __lua__
 function _init()
--- enable mouse controlls --
+
+	-- enable mouse controlls --
 	poke(0x5f2d, 1)
 	
+	mario = make_player(64,64)
 end
 
 function _update()
+	-- mouse position
 	mpos_x = stat(32)
 	mpos_y = stat(33)
+
+	-- mario
+	mario:update()
 end
 
 function _draw()
-	cls()
-	print("result")
+	cls(12) -- clear, fill blue (sky)
+
+	-- mouse cursor
 	spr(1,mpos_x,mpos_y)
+
+	print("x: "..mario.x.." y: "..mario.y, 4, 4, 7)
+	mario:draw()
 end
 
--- arithmetic functions --
-function calc_add(x,y)
-	return x+y
+function make_player(x, y)
+	local p = {}
+	p.x = x -- position x
+	p.y = y -- position y
+	p.sp = 1 -- sprite id
+	p.spd = 3.5 -- walking speed
+	p.flip_x = false
+
+	p.update = function (self)
+		-- left movement
+		if btn (0) then
+			self.x -= self.spd
+			self.flip_x = true
+		end
+		-- right movement
+		if btn(1) then
+			self.x += self.spd
+			self.flip_x = false
+		end
+		-- down movement
+		if btn(2) then
+			self.y -= self.spd
+		end
+		-- up movement
+		if btn(3) then
+			self.y += self.spd
+		end
+	end
+	p.draw = function(self)
+		-- spr(id, xx, y, width, height, flix_x) 
+		spr(self.sp, self.x, self.y, 1, 1,  self.flip)
+	end
+	return p
 end
 
-function calc_subtract(x,y)
-	return x-y
-end
 
-function calc_multiply(x,y)
-	return x*y
-end
-
-function calc_divide(x,y)
-	return x/y
-end
-
-function calc_modulo(x,y)
-	return x%y
-end
 __gfx__
 00000000008888800088870088188188000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 00000000044f1f000888888888911988000000000000000000000000000000000000000000000000000000000666666666555000000000000000000000000000
